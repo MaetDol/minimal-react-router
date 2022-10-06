@@ -49,7 +49,7 @@ export function dispatchPushEvent<T>(path: string, state?: T) {
     timestamp,
     navigateTo: path,
   };
-  history.pushState(historyState, '', path);
+  window.history.pushState(historyState, '', path);
 }
 
 /**
