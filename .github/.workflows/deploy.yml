@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - publish
+
+jobs:
+  deploy_page:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies then Deploy
+        run: |
+          npm install
+          npm run build
+
+      - name: Git config
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Commit & Push
+        run: |
+          git --work-tree build add --all # build 폴더를 루트 패스로
+          git commit -m "Deploy react app by Github actions"
+          git push origin HEAD:pages --force
