@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import {
+  getInitialHistory,
   HistoryState,
   listenPopStateEvent,
   listenPushEvent,
@@ -7,7 +8,7 @@ import {
 
 interface Props extends React.PropsWithChildren {}
 
-const DEFAULT_HISTORY_STATES = [window.history.state];
+const DEFAULT_HISTORY_STATES: HistoryState<any>[] = getInitialHistory();
 export const BrowserHistoryContext = createContext<HistoryState<any>[]>(
   DEFAULT_HISTORY_STATES
 );
