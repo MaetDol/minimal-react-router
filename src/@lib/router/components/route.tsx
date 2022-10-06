@@ -5,6 +5,10 @@ interface Props {
   component: React.ReactNode;
 }
 
-export function Route({}: Props) {
-  return <></>;
+export function Route({ path, component }: Props) {
+  const matchedInfo = useMatch(path);
+
+  if (!matchedInfo) return null;
+
+  return component;
 }
