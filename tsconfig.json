@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@router": ["src/lib/router/index.ts"]
+      "@router": ["src/@lib/router/index.ts"]
     }
   },
   "include": ["src"],

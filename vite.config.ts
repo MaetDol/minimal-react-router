@@ -9,7 +9,7 @@ export default defineConfig({
     alias: [
       {
         find: '@router',
-        replacement: resolve(__dirname, './src/lib/router'),
+        replacement: resolve(__dirname, './src/@lib/router'),
       },
     ],
   },
