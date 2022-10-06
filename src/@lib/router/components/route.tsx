@@ -3,7 +3,7 @@ import { useMatch } from '../hooks/useMatch';
 
 interface Props {
   path: string;
-  component: React.ReactNode;
+  component: React.ReactElement;
 }
 
 export function Route({ path, component }: Props) {
