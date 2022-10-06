@@ -1,3 +1,5 @@
 export function useRouter() {
-  return () => {};
+  return {
+    push: (path: string) => {},
+  };
 }
