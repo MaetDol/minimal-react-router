@@ -21,6 +21,6 @@ jobs:
 
       - name: Commit & Push
         run: |
-          git --work-tree build add --all # build 폴더를 루트 패스로
+          git --work-tree dist add --all # dist 폴더를 루트 패스로
           git commit -m "Deploy react app by Github actions"
           git push origin HEAD:pages --force
