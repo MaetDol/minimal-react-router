@@ -157,8 +157,10 @@ export function getInitialHistory() {
   const storedHistory: HistoryState<any>[] = JSON.parse(
     sessionStorage.getItem(SESSION_STORAGE_HISTORY_KEY) ?? 'null'
   );
-  return pushHistory(
-    getHistoryState(window.location.pathname),
-    storedHistory ?? []
-  );
+
+  // 해당 라우터의 히스토리 사이즈는 history.length 보다 길 수 없어서, 다음과 같이 처리했어요
+  // 맨 뒤에서부터, history.length 만큼만 가져옵니다
+  const fittedHistory = (storedHistory ?? []).slice(-history.length);
+
+  return pushHistory(getHistoryState(window.location.pathname), fittedHistory);
 }
