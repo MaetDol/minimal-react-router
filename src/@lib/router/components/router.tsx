@@ -1,10 +1,11 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from "react";
 import {
   getInitialHistory,
   HistoryState,
+  lastHistoryPushEvent,
   listenPopStateEvent,
   listenPushEvent,
-} from '../utils/history';
+} from "../utils/history";
 
 interface Props extends React.PropsWithChildren {}
 
@@ -21,6 +22,9 @@ export function Router({ children }: Props) {
   useEffect(() => {
     const clearPushEventListener = listenPushEvent(setHistory);
     const clearPopStateEventListener = listenPopStateEvent(setHistory);
+
+    if (lastHistoryPushEvent.current)
+      dispatchEvent(lastHistoryPushEvent.current);
 
     return () => {
       clearPushEventListener();

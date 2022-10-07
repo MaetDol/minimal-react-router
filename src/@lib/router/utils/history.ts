@@ -1,7 +1,7 @@
-import React from 'react';
-import { peek } from './utils';
+import React from "react";
+import { peek } from "./utils";
 
-export const SESSION_STORAGE_HISTORY_KEY = '__history';
+export const SESSION_STORAGE_HISTORY_KEY = "__history";
 
 export type HistoryState<T> = {
   state?: T;
@@ -12,6 +12,16 @@ export type HistoryState<T> = {
 export interface PushEvent<T> extends Event {
   detail: HistoryState<T>;
 }
+
+/**
+ * Router 의 useEffect 보다 useRouter 의 함수가 먼저 실행됐다면
+ * 그에 맞춰 상태를 업데이트 하기 위해 사용하는 임시 변수입니다
+ */
+export const lastHistoryPushEvent: {
+  current: null | CustomEvent<HistoryState<any>>;
+} = {
+  current: null,
+};
 
 /**
  * HistoryState 를 만들어주는 함수입니다
@@ -33,23 +43,20 @@ export function getHistoryState<T>(
  */
 export function dispatchPushEvent<T>(path: string, state?: T) {
   const timestamp = Date.now();
-  const event = new CustomEvent<HistoryState<T>>('pushstate', {
+  const historyState = getHistoryState(path, state);
+  const event = new CustomEvent<HistoryState<T>>("pushstate", {
     cancelable: true,
-    detail: getHistoryState(path, state),
+    detail: historyState,
   });
 
   // preventDefault 가 실행됐다면, 중단합니다
+  lastHistoryPushEvent.current = event;
   const cancelled = !window.dispatchEvent(event);
   if (cancelled) return;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
   // 두번째 인자는 하위호환성에 때문에 빈 문자열로 채워넣었어요
-  const historyState: HistoryState<any> = {
-    state,
-    timestamp,
-    navigateTo: path,
-  };
-  window.history.pushState(historyState, '', path);
+  window.history.pushState(historyState, "", path);
 }
 
 /**
@@ -57,10 +64,10 @@ export function dispatchPushEvent<T>(path: string, state?: T) {
  */
 export function isPushEvent<T>(event: any): event is PushEvent<T> {
   return (
-    'detail' in event &&
-    'state' in event.detail &&
-    'timestamp' in event.detail &&
-    'navigateTo' in event.detail
+    "detail" in event &&
+    "state" in event.detail &&
+    "timestamp" in event.detail &&
+    "navigateTo" in event.detail
   );
 }
 
@@ -68,7 +75,7 @@ export function isPushEvent<T>(event: any): event is PushEvent<T> {
  * PopStateEvent 타입가드입니다
  */
 export function isPopStateEvent(event: Event): event is PopStateEvent {
-  return 'state' in event;
+  return "state" in event;
 }
 
 /**
@@ -79,7 +86,7 @@ export function isForwardEvent(
   history: HistoryState<any>[]
 ) {
   if (!history.length) {
-    throw new Error('history 는 비어있을 수 없습니다');
+    throw new Error("history 는 비어있을 수 없습니다");
   }
 
   return event.state?.timestamp > peek(history).timestamp;
@@ -97,8 +104,8 @@ export function listenPushEvent(setHistory: SetHistoryState) {
     setHistory((history) => pushHistory(e.detail, history));
   };
 
-  window.addEventListener('pushstate', handler);
-  return () => window.removeEventListener('pushstate', handler);
+  window.addEventListener("pushstate", handler);
+  return () => window.removeEventListener("pushstate", handler);
 }
 
 /**
@@ -123,8 +130,8 @@ export function listenPopStateEvent(setHistory: SetHistoryState) {
       return saveHistory(history.slice(0, -1));
     });
 
-  window.addEventListener('popstate', handler);
-  return () => window.removeEventListener('popstate', handler);
+  window.addEventListener("popstate", handler);
+  return () => window.removeEventListener("popstate", handler);
 }
 
 /**
@@ -168,7 +175,7 @@ export function saveHistory(history: HistoryState<any>[]) {
  */
 export function getInitialHistory() {
   const storedHistory: HistoryState<any>[] = JSON.parse(
-    sessionStorage.getItem(SESSION_STORAGE_HISTORY_KEY) ?? 'null'
+    sessionStorage.getItem(SESSION_STORAGE_HISTORY_KEY) ?? "null"
   );
 
   // 해당 라우터의 히스토리 사이즈는 history.length 보다 길 수 없어서, 다음과 같이 처리했어요
