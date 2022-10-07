@@ -119,7 +119,6 @@ export function listenPopStateEvent(setHistory: SetHistoryState) {
   const handler = (e: Event) =>
     setHistory((history) => {
       e.preventDefault();
-      console.log(e, history);
 
       if (!isPopStateEvent(e)) {
         return saveHistory(history);
@@ -170,8 +169,6 @@ export function popHistory<T>(history: HistoryState<T>[]) {
  */
 export function saveHistory(history: HistoryState<any>[]) {
   // TODO: 순환참조가 있다면 에러가 생길 수 있어요
-  console.log(new Error());
-  console.log(history);
   sessionStorage.setItem(SESSION_STORAGE_HISTORY_KEY, JSON.stringify(history));
   return history;
 }
