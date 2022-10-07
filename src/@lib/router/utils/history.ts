@@ -131,6 +131,8 @@ export function listenPopStateEvent(setHistory: SetHistoryState) {
  * 히스토리를 추가하는 함수에요
  *
  * 같은 URL 로 재접근시 history 에 추가하지 않기 때문에, 예외처리를 위해 함수를 만들었어요
+ *
+ * 이벤트를 dispatch 하지 않습니당
  */
 export function pushHistory<T>(
   newState: HistoryState<T>,
@@ -139,6 +141,17 @@ export function pushHistory<T>(
   if (peek(history)?.navigateTo === newState.navigateTo) return history;
 
   return saveHistory(history.concat(newState));
+}
+
+/**
+ * 히스토리 맨 위를 제거하는 함수에요
+ *
+ * 이벤트를 dispatch 하지 않습니당
+ */
+export function popHistory<T>(history: HistoryState<T>[]) {
+  const poped = history.pop();
+  saveHistory(history);
+  return poped;
 }
 
 /**
