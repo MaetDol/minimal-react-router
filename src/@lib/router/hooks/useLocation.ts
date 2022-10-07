@@ -1,6 +1,7 @@
-import { useContext } from 'react';
-import { BrowserHistoryContext } from '../components/router';
-import { peek } from '../utils/utils';
+import { useContext } from "react";
+import { BrowserHistoryContext } from "../components/router";
+import { removeBasePath } from "../utils/path";
+import { peek } from "../utils/utils";
 
 /**
  * 현재 pathname을 반환합니다
@@ -8,5 +9,5 @@ import { peek } from '../utils/utils';
 export function useLocation() {
   const history = useContext(BrowserHistoryContext);
 
-  return peek(history)?.navigateTo ?? window.location.pathname;
+  return peek(history)?.navigateTo ?? removeBasePath(window.location.pathname);
 }

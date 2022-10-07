@@ -1,30 +1,28 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import {
   getInitialHistory,
   HistoryState,
-  lastHistoryPushEvent,
+  globalHistoryState,
   listenPopStateEvent,
   listenPushEvent,
 } from "../utils/history";
 
-interface Props extends React.PropsWithChildren {}
+interface Props extends React.PropsWithChildren {
+  base?: string;
+}
 
-const DEFAULT_HISTORY_STATES: HistoryState<any>[] = getInitialHistory();
-export const BrowserHistoryContext = createContext<HistoryState<any>[]>(
-  DEFAULT_HISTORY_STATES
-);
+export const BrowserHistoryContext = createContext<HistoryState<any>[]>([]);
 
-export function Router({ children }: Props) {
-  const [history, setHistory] = useState<HistoryState<any>[]>(
-    DEFAULT_HISTORY_STATES
-  );
+export function Router({ children, base = "" }: Props) {
+  globalHistoryState.base = base;
+  const initialHistory = useMemo(() => getInitialHistory(), []);
+  const [history, setHistory] = useState<HistoryState<any>[]>(initialHistory);
 
   useEffect(() => {
     const clearPushEventListener = listenPushEvent(setHistory);
     const clearPopStateEventListener = listenPopStateEvent(setHistory);
 
-    if (lastHistoryPushEvent.current)
-      dispatchEvent(lastHistoryPushEvent.current);
+    if (globalHistoryState.current) dispatchEvent(globalHistoryState.current);
 
     return () => {
       clearPushEventListener();

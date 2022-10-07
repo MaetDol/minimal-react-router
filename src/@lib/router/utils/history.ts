@@ -1,4 +1,5 @@
 import React from "react";
+import { removeBasePath, resolveBasePath } from "./path";
 import { peek } from "./utils";
 
 export const SESSION_STORAGE_HISTORY_KEY = "__history";
@@ -17,10 +18,12 @@ export interface PushEvent<T> extends Event {
  * Router 의 useEffect 보다 useRouter 의 함수가 먼저 실행됐다면
  * 그에 맞춰 상태를 업데이트 하기 위해 사용하는 임시 변수입니다
  */
-export const lastHistoryPushEvent: {
+export const globalHistoryState: {
   current: null | CustomEvent<HistoryState<any>>;
+  base: string;
 } = {
   current: null,
+  base: "",
 };
 
 /**
@@ -34,7 +37,7 @@ export function getHistoryState<T>(
   return {
     state,
     timestamp,
-    navigateTo,
+    navigateTo: navigateTo || "/",
   };
 }
 
@@ -50,13 +53,14 @@ export function dispatchPushEvent<T>(path: string, state?: T) {
   });
 
   // preventDefault 가 실행됐다면, 중단합니다
-  lastHistoryPushEvent.current = event;
+  globalHistoryState.current = event;
   const cancelled = !window.dispatchEvent(event);
   if (cancelled) return;
 
   // https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
   // 두번째 인자는 하위호환성에 때문에 빈 문자열로 채워넣었어요
-  window.history.pushState(historyState, "", path);
+  const resolvedPath = resolveBasePath(path);
+  window.history.pushState(historyState, "", resolvedPath);
 }
 
 /**
@@ -166,6 +170,8 @@ export function popHistory<T>(history: HistoryState<T>[]) {
  */
 export function saveHistory(history: HistoryState<any>[]) {
   // TODO: 순환참조가 있다면 에러가 생길 수 있어요
+  console.log(new Error());
+  console.log(history);
   sessionStorage.setItem(SESSION_STORAGE_HISTORY_KEY, JSON.stringify(history));
   return history;
 }
@@ -182,5 +188,8 @@ export function getInitialHistory() {
   // 맨 뒤에서부터, history.length 만큼만 가져옵니다
   const fittedHistory = (storedHistory ?? []).slice(-history.length);
 
-  return pushHistory(getHistoryState(window.location.pathname), fittedHistory);
+  return pushHistory(
+    getHistoryState(removeBasePath(window.location.pathname)),
+    fittedHistory
+  );
 }
